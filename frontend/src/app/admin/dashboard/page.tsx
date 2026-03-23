@@ -71,7 +71,7 @@ export default function AdminDashboard() {
     }
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const [statsRes, usersRes] = await Promise.all([
         axios.get(`${apiUrl}/api/admin/stats`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${apiUrl}/api/admin/users`, { headers: { Authorization: `Bearer ${token}` } })
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
     setProcessingId(userId);
     const token = Cookies.get('txunaleads_token');
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       await axios.patch(`${apiUrl}/api/admin/users/${userId}/plan`, { plan }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
     setProcessingId(userId);
     const token = Cookies.get('txunaleads_token');
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       await axios.patch(`${apiUrl}/api/admin/users/${userId}/role`, { role }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
             setProcessingId(userId);
             const token = Cookies.get('txunaleads_token');
             try {
-              const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+              const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
               await axios.delete(`${apiUrl}/api/admin/users/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` }
               });
@@ -149,7 +149,7 @@ export default function AdminDashboard() {
 
   const handleLogout = () => {
     Cookies.remove('txunaleads_token');
-    localStorage.removeItem('txunaleads_user');
+    sessionStorage.removeItem('txunaleads_user');
     window.location.href = '/auth/login';
   };
 

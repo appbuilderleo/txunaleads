@@ -16,18 +16,18 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const response = await axios.post(`${apiUrl}/api/auth/login`, {
         email,
         password
       });
 
       if (response.data.success) {
-        // Guardar o token nos Cookies para o Middleware conseguir ler
-        Cookies.set('txunaleads_token', response.data.token, { expires: 7 }); 
+        // Guardar o token nos Cookies para o Middleware conseguir ler (Sessão: sem data de expiração)
+        Cookies.set('txunaleads_token', response.data.token); 
         
-        localStorage.setItem('txunaleads_token', response.data.token);
-        localStorage.setItem('txunaleads_user', JSON.stringify(response.data.user));
+        sessionStorage.setItem('txunaleads_token', response.data.token);
+        sessionStorage.setItem('txunaleads_user', JSON.stringify(response.data.user));
         window.location.href = '/dashboard';
       }
     } catch (error: any) {

@@ -91,8 +91,8 @@ export default function Dashboard() {
   // --- Função de Logout ---
   const handleLogout = () => {
     Cookies.remove('txunaleads_token');
-    localStorage.removeItem('txunaleads_token');
-    localStorage.removeItem('txunaleads_user');
+    sessionStorage.removeItem('txunaleads_token');
+    sessionStorage.removeItem('txunaleads_user');
     window.location.href = '/auth/login';
   };
 
@@ -100,7 +100,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   
   React.useEffect(() => {
-    const userData = localStorage.getItem('txunaleads_user');
+    const userData = sessionStorage.getItem('txunaleads_user');
     const token = Cookies.get('txunaleads_token');
 
     if (userData) {
@@ -111,14 +111,14 @@ export default function Dashboard() {
       fetchLeads(token);
       
       // Sincronizar dados do lado do servidor (para garantir upgrades de plano via Webhook após redir)
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       axios.get(`${apiUrl}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then(res => {
         if (res.data.success) {
           const updatedUser = res.data.user;
           setUser(updatedUser);
-          localStorage.setItem('txunaleads_user', JSON.stringify(updatedUser));
+          sessionStorage.setItem('txunaleads_user', JSON.stringify(updatedUser));
         }
       }).catch(err => console.error('Erro ao sincronizar user:', err));
     }
@@ -126,7 +126,7 @@ export default function Dashboard() {
 
   const fetchLeads = async (token: string) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const response = await axios.get(`${apiUrl}/api/leads`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -148,7 +148,7 @@ export default function Dashboard() {
 
     setLoading(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const response = await axios.post(`${apiUrl}/api/scan`, {
         query: nicho,
         location: localizacao
@@ -174,7 +174,7 @@ export default function Dashboard() {
   const handleUpdateStatus = async (id: string, newStatus: string) => {
     const token = Cookies.get('txunaleads_token');
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       await axios.patch(`${apiUrl}/api/leads/${id}/status`, { status: newStatus }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -222,7 +222,7 @@ export default function Dashboard() {
     const token = Cookies.get('txunaleads_token');
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const response = await axios.post(`${apiUrl}/api/payments/checkout`, {
         plan,
         amount: parseInt(price.replace('.', '')),
@@ -781,7 +781,31 @@ function CustomModal({ type, title, message, onClose, onConfirm, data }: any) {
                   <p className="text-[10px] font-bold text-[#94A3B8] uppercase mb-1">Empresa</p>
                   <p className="text-sm font-bold text-[#0A2540]">{data.lead.Empresa}</p>
                </div>
-               <div className="grid grid-cols-2 gap-4">
+               
+               {data.lead.Telefone && (
+                 <div>
+                    <p className="text-[10px] font-bold text-[#94A3B8] uppercase mb-1">Telefone</p>
+                    <p className="text-sm font-bold text-[#0A2540]">{data.lead.Telefone}</p>
+                 </div>
+               )}
+
+               {data.lead.Website && (
+                 <div>
+                    <p className="text-[10px] font-bold text-[#94A3B8] uppercase mb-1">Website</p>
+                    <a href={data.lead.Website.startsWith('http') ? data.lead.Website : `https://${data.lead.Website}`} target="_blank" rel="noreferrer" className="text-sm font-bold text-[#3B82F6] hover:underline break-all">
+                      {data.lead.Website}
+                    </a>
+                 </div>
+               )}
+
+               {data.lead.Morada && (
+                 <div>
+                    <p className="text-[10px] font-bold text-[#94A3B8] uppercase mb-1">Localização / Morada</p>
+                    <p className="text-xs font-semibold text-[#64748B] leading-relaxed">{data.lead.Morada}</p>
+                 </div>
+               )}
+
+               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[#E2E8F0]">
                   <div>
                     <p className="text-[10px] font-bold text-[#94A3B8] uppercase mb-1">Score Txuna</p>
                     <p className="text-sm font-black text-[#2ECC71]">{data.lead.Score}/100</p>
