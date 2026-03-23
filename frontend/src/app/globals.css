@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  /* Paleta @brand-chief: Deep Tech Blue e Verde Growth */
+  --sidebar-bg: #0A2540;
+  --main-bg: #F8FAFC;
+  --primary: #2ECC71;
+  --primary-dark: #27AE60;
+  --primary-soft: #EAFCF1;
+  --text-dark: #0F172A;
+  --text-muted: #64748B;
+  --text-light: #94A3B8;
+  --border: #E2E8F0;
+  --red: #FF4D4D;
+  --red-soft: #FFF1F1;
+  --blue-soft: #E0E7FF;
+  --blue-text: #4F46E5;
+}
+
+body {
+  background-color: var(--main-bg);
+  color: var(--text-dark);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Custom Modal Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-in { animation: fadeIn 0.3s ease-out; }
+.fade-in { animation: fadeIn 0.3s ease-out; }
+.zoom-in-95 { animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
