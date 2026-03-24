@@ -1,3 +1,4 @@
+import dns from 'node:dns';
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
@@ -11,6 +12,9 @@ import Payment from './models/Payment.js';
 import type { Lead } from './scraper.js';
 import axios from 'axios';
 
+
+// Forçar DNS do Google para resolver SRV records do MongoDB Atlas
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 dotenv.config();
 
@@ -28,9 +32,11 @@ app.use(express.json());
 // Conexão MongoDB
 mongoose.connect(MONGO_URI)
   .then(async () => {
-    console.log('✅ 🛡️ @cto: MONGODB CONECTADO');
+    const dbType = MONGO_URI.includes('localhost') ? 'Local' : 'ATLAS (Cloud)';
+    console.log(`✅ 🛡️ @cto: MONGODB CONECTADO [${dbType}]`);
     
-    // Limpeza única: remover leads duplicados existentes
+    // Debug: Verificar se as collections estão acessíveis
+    console.log('📊 @cto: Sincronizando modelos...');
     try {
       const duplicates = await LeadModel.aggregate([
         { $group: { 
