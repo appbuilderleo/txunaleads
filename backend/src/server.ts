@@ -482,8 +482,8 @@ app.delete('/api/admin/users/:id', authenticateToken, isAdmin, async (req: any, 
 
 
 // Inicialização
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`\n✅ 🛡️ @cto: SERVIDOR TXUNALEADS ONLINE`);
-  console.log(`🔗 Local: http://localhost:${PORT}`);
-  console.log(`🚀 Base de Dados: MongoDB Local Ativo\n`);
+  console.log(`🔗 Endereço: http://0.0.0.0:${PORT}`);
+  console.log(`🚀 Status: Operacional e Pronto no Render\n`);
 });
