@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar dependências (incluindo tsx para rodar o backend em TS)
-RUN npm install
+RUN npm install && npx playwright install chromium --with-deps
 
 # Copiar o restante do código
 COPY . .

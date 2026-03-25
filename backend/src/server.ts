@@ -287,6 +287,10 @@ app.post('/api/scan', authenticateToken, async (req: any, res) => {
 
     const leads: Lead[] = await scanGoogleMaps(searchQuery);
 
+    if (leads.length === 0) {
+      console.warn(`⚠️ @cto: Nenhum lead encontrado para "${searchQuery}". Verifique logs do scraper.`);
+    }
+
     // Salvar no Banco de Dados (com deduplicação!)
     let newCount = 0;
     let updatedCount = 0;
@@ -326,9 +330,13 @@ app.post('/api/scan', authenticateToken, async (req: any, res) => {
       timestamp: new Date().toISOString()
     });
 
-  } catch (error) {
-    console.error('❌ Erro no processamento da API:', error);
-    res.status(500).json({ error: 'Falha interna na varredura dos leads.' });
+  } catch (error: any) {
+    console.error('❌ @cto: Erro crítico na API de Scan:', error.message || error);
+    if (error.stack) console.error(error.stack);
+    res.status(500).json({ 
+      error: 'Falha interna na varredura dos leads.',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    });
   }
 });
 

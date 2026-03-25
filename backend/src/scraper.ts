@@ -19,14 +19,29 @@ export interface Lead {
 export async function scanGoogleMaps(query: string, limit: number = 20): Promise<Lead[]> {
   console.log(`🚀 @data-chief: Iniciando varredura para "${query}"...`);
   
-  const browser = await chromium.launch({ headless: true }); 
-  const context = await browser.newContext();
-  const page = await context.newPage();
+  let browser;
 
   try {
+    browser = await chromium.launch({ 
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+      ]
+    }); 
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
     const searchUrl = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
-    await page.goto(searchUrl);
+    await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
     
+    // Esperar pelo carregamento dos resultados
     await page.waitForTimeout(5000); 
 
     const leads: Lead[] = await page.evaluate(() => {
@@ -96,9 +111,9 @@ export async function scanGoogleMaps(query: string, limit: number = 20): Promise
     return leads;
 
   } catch (error) {
-    console.error('❌ Erro na varredura:', error);
+    console.error('❌ @data-chief: Erro na varredura:', error);
     return [];
   } finally {
-    await browser.close();
+    if (browser) await browser.close();
   }
 }
