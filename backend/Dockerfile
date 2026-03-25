@@ -1,5 +1,5 @@
-# Usar imagem oficial do Playwright que já vem com as dependências do sistema preparadas
-FROM mcr.microsoft.com/playwright:v1.49.1-noble
+# Usar imagem oficial do Playwright que corresponda à versão instalada no package.json
+FROM mcr.microsoft.com/playwright:v1.58.2-noble
 
 # Definir o diretório de trabalho
 WORKDIR /app
