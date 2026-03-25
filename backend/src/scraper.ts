@@ -22,6 +22,7 @@ export async function scanGoogleMaps(query: string, limit: number = 20): Promise
   let browser;
 
   try {
+    console.log(`📡 @data-chief: Lançando browser (Chromium)...`);
     browser = await chromium.launch({ 
       headless: true,
       args: [
@@ -31,17 +32,33 @@ export async function scanGoogleMaps(query: string, limit: number = 20): Promise
         '--disable-accelerated-2d-canvas',
         '--no-first-run',
         '--no-zygote',
-        '--single-process',
-        '--disable-gpu'
+        '--single-process', // Importante para containers de 512MB RAM
+        '--disable-gpu',
+        '--hide-scrollbars',
+        '--mute-audio'
       ]
     }); 
-    const context = await browser.newContext();
+    
+    console.log(`✅ @data-chief: Browser aberto. Criando contexto...`);
+    const context = await browser.newContext({
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+      viewport: { width: 1280, height: 800 }
+    });
     const page = await context.newPage();
 
     const searchUrl = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
+    console.log(`🌐 @data-chief: Navegando para: ${searchUrl}`);
+    
     await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
     
-    // Esperar pelo carregamento dos resultados
+    console.log(`⏳ @data-chief: Aguardando carregamento dos resultados...`);
+    // Esperar pelo menos um artigo ou timeout
+    try {
+      await page.waitForSelector('div[role="article"]', { timeout: 15000 });
+    } catch (e) {
+      console.warn('⚠️ @data-chief: Timeout ao esperar por resultados. Tentando extrair o que houver...');
+    }
+
     await page.waitForTimeout(5000); 
 
     const leads: Lead[] = await page.evaluate(() => {
@@ -108,12 +125,17 @@ export async function scanGoogleMaps(query: string, limit: number = 20): Promise
       return results;
     });
 
+    console.log(`📊 @data-chief: Extração finalizada. Leads encontrados: ${leads.length}`);
     return leads;
 
-  } catch (error) {
-    console.error('❌ @data-chief: Erro na varredura:', error);
+  } catch (error: any) {
+    console.error('❌ @data-chief: Erro crítico na varredura:', error.message || error);
+    if (error.stack) console.error(error.stack);
     return [];
   } finally {
-    if (browser) await browser.close();
+    if (browser) {
+      console.log(`🛑 @data-chief: Fechando browser...`);
+      await browser.close();
+    }
   }
 }
